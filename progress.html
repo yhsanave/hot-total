@@ -1,0 +1,32 @@
+<style>
+    .progress {
+        font-family: 'Gabarito', sans-serif;
+        font-weight: 700;
+        border: 3px #F4F6FC solid;
+        border-radius: 10px;
+        height: 3em;
+        width: 100%;
+        background: #F4F6FC;
+        background: linear-gradient(90deg, #F4F6FC 0%, #F4F6FC var(--progress), #073763 var(--progress), #073763 100%);
+        filter: drop-shadow(0px 0px 5px #F4F6FC);
+        overflow: hidden;
+    }
+
+    .progress-text {
+        background: inherit;
+        background-clip: text;
+        color: transparent;
+        filter: invert(1) grayscale(1) contrast(2);
+        font-size: 1.5em;
+        position: absolute;
+        width: inherit;
+        height: inherit;
+        display: flex;
+        align-items: center;
+        justify-content: center;
+    }
+</style>
+
+<div class="progress" style="--progress: 0%;">
+    <span class="progress-text"></span>
+</div>

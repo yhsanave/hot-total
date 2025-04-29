@@ -1,0 +1,81 @@
+<script type="text/javascript" src="https://stevenlevithan.com/assets/misc/date.format.js"></script>
+<script>
+    const API_URL = "https://yhsanave.pythonanywhere.com/hot/";
+
+    var total = 0;
+
+    async function randomStream() {
+        let streams = ['zeldaspeedruns'];
+        let response = await fetch(API_URL + "streams", {
+            headers: {
+                "X-Pinggy-No-Screen": "true"
+            }
+        });
+        if (response.ok) {
+            let json = await response.json();
+            streams = json;
+        } else {
+            console.log("Failed to get streams defaulting to ZeldaSpeedRuns");
+            return;
+        }
+
+        let stream = `https://player.twitch.tv/?channel=${streams[Math.floor(Math.random() * streams.length)]}&parent=hero.gives&autoplay=false`;
+        let player = document.querySelector("#randomStream div.frame iframe");
+        player.src = stream;
+        player.dataset.src = stream;
+        player.dataset.initialSrc = stream;
+    }
+
+    async function getTotal() {
+        const totalElems = document.querySelectorAll(".total-text");
+        let response = await fetch(API_URL + "total", {
+            headers: {
+                "X-Pinggy-No-Screen": "true"
+            }
+        });
+        if (response.ok) {
+            let json = await response.json();
+            total = parseInt(json.total.slice(1));
+            totalElems.forEach(element => {
+                element.textContent = json.total;
+            });
+            setPrize();
+        } else {
+            console.log("Failed to get event total");
+        }
+    }
+
+    function setTimes() {
+        let timeCells = document.querySelectorAll('.schedule > div.table-inner > table > tbody > tr > td:nth-child(3)');
+        timeCells.forEach(e => {
+            let dt = new Date(e.textContent);
+            e.textContent = dateFormat(dt, "dddd h:MM TT")
+        });
+    }
+
+    function setPrize() {
+        let currentPrizeLevel = Math.min(Math.floor(total / 5000), 10) + 1;
+
+        let images = document.querySelectorAll(`#prizeGallery > div.inner > ul > li:not(:nth-child(${currentPrizeLevel}))`);
+        images.forEach(e => e.style.display = 'none');
+
+        let rows = document.querySelectorAll(`#prizeTable > div.table-inner > table > tbody > tr:nth-child(n+${currentPrizeLevel + 1})`);
+        rows.forEach(e => e.style.display = 'none');
+
+        // Progress Bar
+        let progressElems = document.querySelectorAll('#prizeProgress .progress');
+        let prog = total < 50000 ? total % 5000 : 50000;
+        progressElems.forEach(e => {
+            e.style.setProperty('--progress', total >= 50000 ? '100%' : `${Math.floor(prog / 50)}%`);
+            e.querySelector('.progress-text').textContent = total >= 50000 ? 'All Upgrades Unlocked!' : `Next Upgrade: $${prog} / $5000`;
+        });
+    }
+
+    function main() {
+        randomStream();
+        getTotal();
+        setTimes();
+    }
+
+    window.onload = main;
+</script>
